@@ -159,6 +159,17 @@
       localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
       localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').innerHTML);
     }
+
+    // Focus the hidden input when the page loads
+    window.onload = function() {
+      document.getElementById('hiddenInput').focus();
+    };
+
+    // Re-focus when user taps anywhere on the game area (for mobile)
+    document.getElementById('game').addEventListener('click', function() {
+      document.getElementById('hiddenInput').focus();
+    });
+
   </script>
 
   <input id="hiddenInput" style="opacity:0; position:absolute; top:-100px;">
