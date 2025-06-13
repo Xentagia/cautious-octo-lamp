@@ -4,10 +4,24 @@
   <meta charset="UTF-8">
   <title>Custom Wordle League</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input { text-transform: uppercase; width: 60px; font-size: 20px; }
-    button { font-size: 16px; }
-    pre { background: #f0f0f0; padding: 10px; }
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    input { text-transform: uppercase; width: 120px; font-size: 24px; }
+    button { font-size: 20px; margin-left: 10px; }
+    .guess-row { display: flex; justify-content: center; margin: 5px 0; }
+    .tile {
+      width: 50px; height: 50px;
+      border: 2px solid #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .green { background-color: #6aaa64; color: white; }
+    .yellow { background-color: #c9b458; color: white; }
+    .grey { background-color: #787c7e; color: white; }
+    pre { background: #f0f0f0; padding: 10px; text-align: left; }
   </style>
 </head>
 <body>
@@ -15,7 +29,7 @@
   <p>Guess today's 5-letter word:</p>
   <input id="guess" maxlength="5">
   <button onclick="submitGuess()">Guess</button>
-  <pre id="result"></pre>
+  <div id="result"></div>
 
   <script>
     const wordList = ["apple", "brave", "charm", "delta", "eagle", "fancy", "grape", "hound", "mango"];
@@ -32,12 +46,10 @@
     if (played) {
       document.getElementById('guess').disabled = true;
       document.querySelector('button').disabled = true;
-      document.getElementById('result').textContent = '✅ You already played today!\nHere was your result:\n' + storedResult;
+      document.getElementById('result').innerHTML = '<p>✅ You already played today!</p>' + storedResult;
     }
 
     function submitGuess() {
-      if (guesses.length >= maxGuesses) return;
-
       const input = document.getElementById('guess');
       const guess = input.value.toUpperCase();
       if (guess.length !== 5) {
@@ -46,24 +58,31 @@
       }
 
       guesses.push(guess);
-      const result = getResult(guess);
-      document.getElementById('result').textContent += result + '\n';
+      const resultRow = getResultRow(guess);
+      document.getElementById('result').appendChild(resultRow);
 
       if (guess === targetWord) {
-        document.getElementById('result').textContent += '\n🎉 You guessed it in ' + guesses.length + ' tries!';
+        const msg = document.createElement('p');
+        msg.textContent = '🎉 You guessed it in ' + guesses.length + ' tries!';
+        document.getElementById('result').appendChild(msg);
         endGame();
       } else if (guesses.length >= maxGuesses) {
-        document.getElementById('result').textContent += '\n❌ Out of tries! The word was: ' + targetWord;
+        const msg = document.createElement('p');
+        msg.textContent = '❌ Out of tries! The word was: ' + targetWord;
+        document.getElementById('result').appendChild(msg);
         endGame();
       }
 
       input.value = '';
     }
 
-    function getResult(guess) {
+    function getResultRow(guess) {
+      const row = document.createElement('div');
+      row.className = 'guess-row';
+
       const targetArr = targetWord.split('');
       const guessArr = guess.split('');
-      const result = Array(5).fill('⬜');
+      const result = Array(5).fill('grey');
 
       const letterCounts = {};
       for (const letter of targetArr) {
@@ -73,9 +92,9 @@
       // First pass: green
       for (let i = 0; i < 5; i++) {
         if (guessArr[i] === targetArr[i]) {
-          result[i] = '🟩';
+          result[i] = 'green';
           letterCounts[guessArr[i]]--;
-          guessArr[i] = null;
+          guessArr[i] = null; // Mark this as done
           targetArr[i] = null;
         }
       }
@@ -83,20 +102,29 @@
       // Second pass: yellow
       for (let i = 0; i < 5; i++) {
         if (guessArr[i] && letterCounts[guessArr[i]] > 0) {
-          result[i] = '🟨';
+          result[i] = 'yellow';
           letterCounts[guessArr[i]]--;
         }
       }
 
-      return result.join('');
+      // Build visual row
+      for (let i = 0; i < 5; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile ' + result[i];
+        tile.textContent = guess[i];
+        row.appendChild(tile);
+      }
+
+      return row;
     }
 
     function endGame() {
       document.getElementById('guess').disabled = true;
       document.querySelector('button').disabled = true;
 
+      // Save result HTML for display on reload
       localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
-      localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').textContent);
+      localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').innerHTML);
     }
   </script>
 </body>
