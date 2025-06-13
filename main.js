@@ -72,7 +72,6 @@ function endGame(win) {
   localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
   localStorage.setItem('wordleResult-' + dayNumber, guessHistory.innerHTML + resultDiv.textContent);
 
-  const shareCode = generateShareCode(guessesResults);
   localStorage.setItem('wordleShareCode-' + dayNumber, shareCode);
   document.getElementById('shareCode').innerText = shareCode;
 }
@@ -80,12 +79,6 @@ function endGame(win) {
 function submitGuess() {
   if (currentGuess.length !== 5) return;
   const guessUpper = currentGuess.toUpperCase();
-
-  // Optionally check if guess is in wordList:
-  // if (!wordList.includes(guessUpper)) {
-  //   alert('Not a valid word');
-  //   return;
-  // }
 
   guesses.push(guessUpper);
   const colors = colorizeGuess(guessUpper);
