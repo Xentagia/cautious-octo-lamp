@@ -17,7 +17,7 @@
   .input-row, .guess-row {
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 0;
   }
   .tile {
     width: 50px;
@@ -89,6 +89,9 @@
     font-size: 12px;
     color: #888;
   }
+  #guessHistory {
+    margin-top: 20px;
+  }
 </style>
 </head>
 <body>
@@ -97,15 +100,16 @@
   <div id="game">
     <div id="tapToType">Tap here to type</div>
 
-    <div class="input-row" id="inputRow">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+    <div class="input-row" id="inputRow" style="margin-bottom: 0;">
       <div class="tile input-tile" id="tile0"></div>
       <div class="tile input-tile" id="tile1"></div>
       <div class="tile input-tile" id="tile2"></div>
       <div class="tile input-tile" id="tile3"></div>
       <div class="tile input-tile" id="tile4"></div>
     </div>
-
-    <button id="guessButton" disabled>Guess</button>
+    <button id="guessButton" disabled style="height: 56px; padding: 0 20px;">Guess</button>
+  </div>
 
     <div id="guessHistory"></div>
 
