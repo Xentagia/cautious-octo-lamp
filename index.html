@@ -45,6 +45,8 @@
   <button onclick="submitGuess()">Guess</button>
   <div id="result"></div>
 
+  <input id="hiddenInput" style="opacity:0; position:absolute; top:-100px;">
+
   <script>
     const wordList = ["apple", "brave", "charm", "delta", "eagle", "fancy", "grape", "hound", "mango"];
     const startDate = new Date('2025-06-01');
@@ -153,31 +155,26 @@
       return row;
     }
 
-    function endGame() {
-      document.querySelector('button').disabled = true;
-      document.removeEventListener('keydown', handleKeyPress);
-      localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
-      localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').innerHTML);
-    }
+  function endGame() {
+    document.querySelector('button').disabled = true;
+    document.removeEventListener('keydown', handleKeyPress);
+    localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
+    localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').innerHTML);
+  }
 
-    // Focus the hidden input when the page loads
-    window.onload = function() {
-      document.getElementById('hiddenInput').focus();
-    };
+  // Focus the hidden input when the page loads
+  window.onload = function() {
+    document.getElementById('hiddenInput').focus();
+  };
 
-    // Re-focus when user taps anywhere on the game area (for mobile)
-    document.getElementById('game').addEventListener('click', function() {
-      document.getElementById('hiddenInput').focus();
-    });
+  // Re-focus when user taps anywhere on the game area (for mobile)
+  document.getElementById('game').addEventListener('click', function() {
+    document.getElementById('hiddenInput').focus();
+  });
+</script>
 
-  </script>
-
-  <input id="hiddenInput" style="opacity:0; position:absolute; top:-100px;">
-
-  <div style="position: fixed; top: 10px; right: 10px; font-size: 12px; color: #888;">
-    v1.0.2
-  </div>
+<div style="position: fixed; top: 10px; right: 10px; font-size: 12px; color: #888;">
+  v1.0.3
+</div>
 </body>
 </html>
-
-
