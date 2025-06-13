@@ -1,78 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Wordle League</title>
-<style>
-  body { font-family: sans-serif; text-align: center; margin-top: 30px; }
-  .row { display: flex; justify-content: center; margin: 5px; }
-  .tile { width: 40px; height: 40px; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 2px; text-transform: uppercase; }
-  .green { background: green; color: white; }
-  .yellow { background: gold; color: white; }
-  .grey { background: lightgrey; }
-  #result { margin-top: 20px; white-space: pre-wrap; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom Wordle League</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    input { font-size: 20px; text-transform: uppercase; }
+    .result { white-space: pre-line; margin-top: 20px; font-size: 24px; }
+  </style>
 </head>
 <body>
-<h1>Wordle League</h1>
-<p>Guess today's 5-letter word</p>
-<input type="text" id="guess" maxlength="5" autofocus>
-<button onclick="submitGuess()">Guess</button>
-<div id="board"></div>
-<div id="result"></div>
-<script>
-const wordList = ["apple", "brave", "charm", "delta", "eagle", "flame", "grape", "honey", "ivory", "jelly", "kings", "lemon", "mango", "night", "oasis", "pearl", "queen", "river", "sunny", "tiger", "union", "vivid", "whale", "xenon", "young", "zebra"];
-const startDate = new Date("2025-06-01"); // League start date
-const today = new Date();
-const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-const targetWord = wordList[dayNumber % wordList.length];
-const maxGuesses = 6;
-let guesses = [];
+  <h1>Wordle League</h1>
+  <p>Guess the 5-letter word of the day:</p>
+  <input type="text" id="guess" maxlength="5" autofocus />
+  <button onclick="submitGuess()">Guess</button>
+  <div class="result" id="result"></div>
 
-function submitGuess() {
-  const input = document.getElementById('guess');
-  const guess = input.value.toLowerCase();
-  if (guess.length !== 5) { alert("Please enter a 5-letter word."); return; }
-  if (guesses.length >= maxGuesses) { alert("No more guesses!"); return; }
-  guesses.push(guess);
-  drawBoard();
-  input.value = '';
-  if (guess === targetWord) showResult();
-  else if (guesses.length === maxGuesses) showResult();
-}
+  <script>
+    // 🔡 Your custom word list here:
+    const wordList = ["apple", "brave", "charm", "delta", "eagle", "fancy", "grape", "hound"];
+    
+    // 📅 Calculate day number since a start date:
+    const startDate = new Date('2025-06-01');
+    const today = new Date();
+    const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 
-function drawBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
-  guesses.forEach(g => {
-    const row = document.createElement('div');
-    row.className = 'row';
-    for (let i = 0; i < 5; i++) {
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.textContent = g[i];
-      if (g[i] === targetWord[i]) tile.classList.add('green');
-      else if (targetWord.includes(g[i])) tile.classList.add('yellow');
-      else tile.classList.add('grey');
-      row.appendChild(tile);
+    // 🏆 Pick today's word based on dayNumber:
+    const targetWord = wordList[dayNumber % wordList.length].toUpperCase();
+    const maxGuesses = 6;
+    const guesses = [];
+
+    // ✅ Prevent replays using localStorage:
+    const played = localStorage.getItem('wordlePlayed-' + dayNumber);
+    if (played) {
+      document.getElementById('guess').disabled = true;
+      document.querySelector('button').disabled = true;
+      document.getElementById('result').textContent = '✅ You have already played today!';
     }
-    board.appendChild(row);
-  });
-}
 
-function showResult() {
-  let result = '';
-  guesses.forEach(g => {
-    for (let i = 0; i < 5; i++) {
-      if (g[i] === targetWord[i]) result += '🟩';
-      else if (targetWord.includes(g[i])) result += '🟨';
-      else result += '⬜';
+    function submitGuess() {
+      if (guesses.length >= maxGuesses) return;
+
+      const input = document.getElementById('guess');
+      const guess = input.value.toUpperCase();
+      if (guess.length !== 5) {
+        alert('Enter a 5-letter word.');
+        return;
+      }
+
+      guesses.push(guess);
+      const result = getResult(guess);
+      document.getElementById('result').textContent += result + '\n';
+
+      if (guess === targetWord) {
+        document.getElementById('result').textContent += '\n🎉 You guessed it in ' + guesses.length + ' tries!';
+        endGame();
+      } else if (guesses.length >= maxGuesses) {
+        document.getElementById('result').textContent += '\n❌ Out of tries! The word was: ' + targetWord;
+        endGame();
+      }
+
+      input.value = '';
     }
-    result += '\n';
-  });
-  document.getElementById('result').textContent = result;
-}
-</script>
+
+    function getResult(guess) {
+      let result = '';
+      const targetArr = targetWord.split('');
+      const guessArr = guess.split('');
+
+      // 🟩 First pass for correct position:
+      for (let i = 0; i < 5; i++) {
+        if (guessArr[i] === targetArr[i]) {
+          result += '🟩';
+          targetArr[i] = null; // Mark as used
+          guessArr[i] = null;
+        }
+      }
+
+      // 🟨 Second pass for correct letters wrong position:
+      for (let i = 0; i < 5; i++) {
+        if (guessArr[i] && targetArr.includes(guessArr[i])) {
+          result += '🟨';
+          targetArr[targetArr.indexOf(guessArr[i])] = null; // Mark as used
+        } else if (guessArr[i]) {
+          result += '⬜';
+        }
+      }
+
+      return result;
+    }
+
+    function endGame() {
+      document.getElementById('guess').disabled = true;
+      document.querySelector('button').disabled = true;
+      // 🚫 Store play state in localStorage:
+      localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
+    }
+  </script>
 </body>
 </html>
