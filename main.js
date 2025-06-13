@@ -71,6 +71,10 @@ function endGame(win) {
   }
   localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
   localStorage.setItem('wordleResult-' + dayNumber, guessHistory.innerHTML + resultDiv.textContent);
+
+  const shareCode = generateShareCode(guessesResults);
+  localStorage.setItem('wordleShareCode-' + dayNumber, shareCode);
+  document.getElementById('shareCode').innerText = shareCode;
 }
 
 function submitGuess() {
@@ -119,6 +123,20 @@ function handleKeyDown(e) {
   }
 }
 
+function generateShareCode(guessesResults) {
+  if (!guessesResults || guessesResults.length === 0) return '';
+
+  const colorMap = {
+    'grey': '⚪',
+    'yellow': '🟡',
+    'green': '🟢'
+  };
+
+  return guessesResults.map(row =>
+    row.map(color => colorMap[color] || '⚪').join('')
+  ).join('\n');
+}
+
 function loadPrevious() {
   if (localStorage.getItem('wordlePlayed-' + dayNumber)) {
     guessHistory.innerHTML = localStorage.getItem('wordleResult-' + dayNumber);
@@ -149,4 +167,8 @@ window.onload = function () {
 
   updateInputTiles();
   loadPrevious();
+  const shareCode = localStorage.getItem('wordleShareCode-' + dayNumber);
+  if (shareCode) {
+    document.getElementById('shareCode').innerText = shareCode;
+  }
 };
