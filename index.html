@@ -89,9 +89,13 @@
     font-size: 12px;
     color: #888;
   }
-  #guessHistory {
-    margin-top: 20px;
+ #guessHistory .guess-row {
+  margin-bottom: 12px; /* add space between guess rows */
   }
+  #guessHistory .guess-row:last-child {
+    margin-bottom: 0; /* no extra space after last */
+  }
+
 </style>
 </head>
 <body>
@@ -108,7 +112,7 @@
       <div class="tile input-tile" id="tile3"></div>
       <div class="tile input-tile" id="tile4"></div>
     </div>
-    <button id="guessButton" disabled style="height: 56px; padding: 0 20px;">Guess</button>
+    <button id="guessButton" disabled style="height: 56px; padding: 0 20px;" onclick="submitGuess()">Guess</button>
   </div>
 
     <div id="guessHistory"></div>
@@ -118,7 +122,7 @@
 
   <input id="hiddenInput" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" />
 
-  <div id="versionBadge">v1.0.11</div>
+  <div id="versionBadge">v1.0.13</div>
 
   <script src="wordlist.js"></script>
   <script src="main.js"></script>
