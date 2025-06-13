@@ -1,164 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Custom Wordle League</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-    }
-    .input-row {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-      gap: 5px;
-    }
-    .tile {
-      width: 50px;
-      height: 50px;
-      border: 2px solid #ccc;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: bold;
-      text-transform: uppercase;
-      background-color: white;
-      border-radius: 4px;
-    }
-    .tile.correct { background-color: #6aaa64; color: white; }  /* Green */
-    .tile.present { background-color: #c9b458; color: white; }  /* Yellow */
-    .tile.absent  { background-color: #787c7e; color: white; }  /* Grey */
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Custom Wordle League</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 400px;
+    margin: auto;
+  }
+  #game {
+    user-select: none;
+  }
+  .input-row, .guess-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .tile {
+    width: 50px;
+    height: 50px;
+    margin: 0 6px;
+    border: 2px solid #888;
+    line-height: 50px;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  .input-tile {
+    background: #f0f0f0;
+  }
+  .tile.green {
+    background-color: #6aaa64;
+    border-color: #6aaa64;
+    color: white;
+  }
+  .tile.yellow {
+    background-color: #c9b458;
+    border-color: #c9b458;
+    color: white;
+  }
+  .tile.grey {
+    background-color: #787c7e;
+    border-color: #787c7e;
+    color: white;
+  }
+  #tapToType {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 15px;
+    cursor: pointer;
+  }
+  button {
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    border-radius: 6px;
+    border: none;
+    background-color: #4a90e2;
+    color: white;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  #result {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  /* Hide the actual input but keep focusable */
+  #hiddenInput {
+    opacity: 0;
+    position: absolute;
+    top: -100px;
+  }
+  /* Version badge */
+  #versionBadge {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: #888;
+  }
+</style>
 </head>
 <body>
   <h1>Custom Wordle League</h1>
-  <p>Type your 5-letter guess and tap "Guess":</p>
 
-  <div class="input-row" id="inputRow">
-    <div class="tile input-tile" id="tile0"></div>
-    <div class="tile input-tile" id="tile1"></div>
-    <div class="tile input-tile" id="tile2"></div>
-    <div class="tile input-tile" id="tile3"></div>
-    <div class="tile input-tile" id="tile4"></div>
+  <div id="game">
+    <div id="tapToType">Tap here to type</div>
+
+    <div class="input-row" id="inputRow">
+      <div class="tile input-tile" id="tile0"></div>
+      <div class="tile input-tile" id="tile1"></div>
+      <div class="tile input-tile" id="tile2"></div>
+      <div class="tile input-tile" id="tile3"></div>
+      <div class="tile input-tile" id="tile4"></div>
+    </div>
+
+    <button id="guessButton" disabled>Guess</button>
+
+    <div id="guessHistory"></div>
+
+    <div id="result"></div>
   </div>
 
-  <button onclick="submitGuess()">Guess</button>
-  <div id="result"></div>
+  <input id="hiddenInput" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" />
 
-  <!-- Invisible input that grabs mobile keyboard -->
-  <input id="hiddenInput" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="opacity:0; position:absolute; top:-100px;">
+  <div id="versionBadge">v1.0.11</div>
 
-  <script>
-    function initGame() {
-  const startDate = new Date('2025-06-01');
-  const today = new Date();
-  const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-  const targetWord = wordList[dayNumber % wordList.length].toUpperCase();
-  const maxGuesses = 6;
-  const guesses = [];
-  let currentGuess = "";
-
-  document.getElementById('inputRow').addEventListener('click', function() {
-    document.getElementById('hiddenInput').focus();
-  });
-
-  window.onload = function() {
-    document.getElementById('hiddenInput').focus();
-    if(localStorage.getItem('wordlePlayed-' + dayNumber) === 'true') {
-      document.getElementById('result').innerHTML = localStorage.getItem('wordleResult-' + dayNumber);
-      document.querySelector('button').disabled = true;
-    }
-  };
-
-  document.getElementById('hiddenInput').addEventListener('input', function(e) {
-    let value = e.target.value.toUpperCase();
-    value = value.replace(/[^A-Z]/g, '').slice(0, 5);
-    currentGuess = value;
-    e.target.value = currentGuess;
-    updateInputTiles();
-  });
-
-  document.getElementById('hiddenInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      submitGuess();
-      e.preventDefault();
-    }
-  });
-
-
-
-  function updateInputTiles() {
-    for (let i = 0; i < 5; i++) {
-      document.getElementById('tile' + i).textContent = currentGuess[i] || '';
-    }
-  }
-
-  function submitGuess() {
-    if (currentGuess.length !== 5) {
-      alert("Guess must be 5 letters.");
-      return;
-    }
-    guesses.push(currentGuess);
-    checkGuess(currentGuess);
-    currentGuess = "";
-    document.getElementById('hiddenInput').value = "";
-    updateInputTiles();
-
-    if (guesses.length >= maxGuesses) endGame();
-  }
-
-  function checkGuess(guess) {
-    guess = guess.toUpperCase();
-    const resultRow = document.createElement('div');
-    resultRow.classList.add('input-row');
-
-    const targetLetters = targetWord.split('');
-    const guessLetters = guess.split('');
-    const tileStates = ['absent', 'absent', 'absent', 'absent', 'absent'];
-
-    for (let i = 0; i < 5; i++) {
-      if (guessLetters[i] === targetLetters[i]) {
-        tileStates[i] = 'correct';
-        targetLetters[i] = null;
-      }
-    }
-
-    for (let i = 0; i < 5; i++) {
-      if (tileStates[i] === 'correct') continue;
-      const index = targetLetters.indexOf(guessLetters[i]);
-      if (index !== -1) {
-        tileStates[i] = 'present';
-        targetLetters[index] = null;
-      }
-    }
-
-    for (let i = 0; i < 5; i++) {
-      const tile = document.createElement('div');
-      tile.classList.add('tile', tileStates[i]);
-      tile.textContent = guess[i];
-      resultRow.appendChild(tile);
-    }
-
-    document.getElementById('result').appendChild(resultRow);
-
-    if (guess === targetWord) endGame();
-  }
-
-  function endGame() {
-    document.querySelector('button').disabled = true;
-    localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
-    localStorage.setItem('wordleResult-' + dayNumber, document.getElementById('result').innerHTML);
-  }
-
-  // Attach submitGuess to button
-  window.submitGuess = submitGuess;
-  }
-  </script>
-
-  <div style="position: fixed; top: 10px; right: 10px; font-size: 12px; color: #888;">
-    v1.0.10
-  </div>
+  <script src="wordlist.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
