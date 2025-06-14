@@ -1,4 +1,4 @@
 const wordList = [
-  "AGMAN", "AIKON", "BLIKS", "BEFOK", "BOERE", "BRAAI", "CHOWS", "EISHH", "HAIBO", "LEKKE", "MZANS",
-  "OKIES", "PASOP", "ROBOT", "SHAME", "SPAZA", "JANEE"
+  "AGMAN", "BLIKS", "BEFOK", "BOERE", "BRAAI", "CHOWS", "EISHH", "HAIBO", "LEKKE", 
+  "OKIES", "PASOP", "ROBOT", "SHAME", "SPAZA", "JANEE", "MANNE", "MZANS", "WOORD"
 ];
