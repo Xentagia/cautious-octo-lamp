@@ -4,6 +4,7 @@ const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 const targetWord = wordList[dayNumber % wordList.length].toUpperCase();
 const maxGuesses = 6;
 const guesses = [];
+const guessResults = []; // Track color results for each guess
 let currentGuess = "";
 
 const inputTiles = [...document.querySelectorAll('.input-tile')];
@@ -72,11 +73,11 @@ function endGame(win) {
   localStorage.setItem('wordlePlayed-' + dayNumber, 'true');
   localStorage.setItem('wordleResult-' + dayNumber, guessHistory.innerHTML + resultDiv.textContent);
 
-  const shareCode = generateShareCode(guessesResults);
+  // Generate and display share code
+  const shareCode = generateShareCode();
   localStorage.setItem('wordleShareCode-' + dayNumber, shareCode);
   document.getElementById('shareCode').innerText = shareCode;
 }
-
 
 function submitGuess() {
   if (currentGuess.length !== 5) return;
@@ -84,6 +85,7 @@ function submitGuess() {
 
   guesses.push(guessUpper);
   const colors = colorizeGuess(guessUpper);
+  guessResults.push(colors); // Store the color results
   addGuessToHistory(guessUpper, colors);
 
   if (guessUpper === targetWord) {
@@ -118,18 +120,21 @@ function handleKeyDown(e) {
   }
 }
 
-function generateShareCode(guessesResults) {
-  if (!guessesResults || guessesResults.length === 0) return '';
+function generateShareCode() {
+  if (!guessResults || guessResults.length === 0) return '';
 
   const colorMap = {
-    'grey': '⚪',
-    'yellow': '🟡',
-    'green': '🟢'
+    'grey': '⬛',
+    'yellow': '🟨',
+    'green': '🟩'
   };
 
-  return guessesResults.map(row =>
-    row.map(color => colorMap[color] || '⚪').join('')
+  const header = `Custom Wordle League #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
+  const grid = guessResults.map(row =>
+    row.map(color => colorMap[color] || '⬛').join('')
   ).join('\n');
+
+  return header + grid;
 }
 
 function loadPrevious() {
@@ -139,6 +144,12 @@ function loadPrevious() {
     hiddenInput.disabled = true;
     tapToType.style.display = 'none';
     resultDiv.textContent = "You already played today's word!";
+    
+    // Show previous share code if available
+    const shareCode = localStorage.getItem('wordleShareCode-' + dayNumber);
+    if (shareCode) {
+      document.getElementById('shareCode').innerText = shareCode;
+    }
   }
 }
 
@@ -162,8 +173,4 @@ window.onload = function () {
 
   updateInputTiles();
   loadPrevious();
-  const shareCode = localStorage.getItem('wordleShareCode-' + dayNumber);
-  if (shareCode) {
-    document.getElementById('shareCode').innerText = shareCode;
-  }
 };
