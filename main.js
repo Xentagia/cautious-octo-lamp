@@ -76,7 +76,18 @@ function endGame(win) {
   // Generate and display share code
   const shareCode = generateShareCode();
   localStorage.setItem('wordleShareCode-' + dayNumber, shareCode);
-  document.getElementById('shareCode').innerText = shareCode;
+  const shareCodeElement = document.getElementById('shareCode');
+  shareCodeElement.innerText = shareCode;
+  
+  // Add copy button
+  if (shareCode && !document.getElementById('copyButton')) {
+    const copyButton = document.createElement('button');
+    copyButton.id = 'copyButton';
+    copyButton.textContent = '📋 Copy Results';
+    copyButton.onclick = copyShareCode;
+    copyButton.style.marginTop = '10px';
+    shareCodeElement.parentNode.insertBefore(copyButton, shareCodeElement.nextSibling);
+  }
 }
 
 function submitGuess() {
@@ -131,10 +142,43 @@ function generateShareCode() {
 
   const header = `Custom Wordle League #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
   const grid = guessResults.map(row =>
-    row.map(color => colorMap[color] || '⬛').join('')
+    row.map(color => colorMap[color] || '⬛').join(' ')
   ).join('\n');
 
   return header + grid;
+}
+
+function copyShareCode() {
+  const shareCode = document.getElementById('shareCode').innerText;
+  if (shareCode) {
+    navigator.clipboard.writeText(shareCode).then(() => {
+      const button = document.getElementById('copyButton');
+      const originalText = button.textContent;
+      button.textContent = 'Copied!';
+      button.style.backgroundColor = '#28a745';
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = '#4a90e2';
+      }, 2000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = shareCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      const button = document.getElementById('copyButton');
+      const originalText = button.textContent;
+      button.textContent = 'Copied!';
+      button.style.backgroundColor = '#28a745';
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = '#4a90e2';
+      }, 2000);
+    });
+  }
 }
 
 function loadPrevious() {
@@ -148,7 +192,18 @@ function loadPrevious() {
     // Show previous share code if available
     const shareCode = localStorage.getItem('wordleShareCode-' + dayNumber);
     if (shareCode) {
-      document.getElementById('shareCode').innerText = shareCode;
+      const shareCodeElement = document.getElementById('shareCode');
+      shareCodeElement.innerText = shareCode;
+      
+      // Add copy button for previous results
+      if (!document.getElementById('copyButton')) {
+        const copyButton = document.createElement('button');
+        copyButton.id = 'copyButton';
+        copyButton.textContent = '📋 Copy Results';
+        copyButton.onclick = copyShareCode;
+        copyButton.style.marginTop = '10px';
+        shareCodeElement.parentNode.insertBefore(copyButton, shareCodeElement.nextSibling);
+      }
     }
   }
 }
