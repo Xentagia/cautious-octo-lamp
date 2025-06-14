@@ -90,9 +90,39 @@ function endGame(win) {
   }
 }
 
+function showError(message) {
+  const errorDiv = document.getElementById('errorMessage') || (() => {
+    const div = document.createElement('div');
+    div.id = 'errorMessage';
+    div.style.cssText = 'color: #d73027; text-align: center; font-weight: bold; margin: 10px 0; font-size: 0.9rem;';
+    document.getElementById('inputRow').parentNode.appendChild(div);
+    return div;
+  })();
+  
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  
+  // Clear error after 3 seconds
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 3000);
+}
+
 function submitGuess() {
   if (currentGuess.length !== 5) return;
   const guessUpper = currentGuess.toUpperCase();
+
+  // Check if word was already guessed
+  if (guesses.includes(guessUpper)) {
+    showError(`"${guessUpper}" has already been guessed!`);
+    return;
+  }
+
+  // Check if word is in dictionary
+  if (!dictionarySet.has(guessUpper)) {
+    showError(`"${guessUpper}" is not a valid word!`);
+    return;
+  }
 
   guesses.push(guessUpper);
   const colors = colorizeGuess(guessUpper);
