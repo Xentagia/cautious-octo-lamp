@@ -170,7 +170,7 @@ function generateShareCode() {
     'green': '🟩'
   };
 
-  const header = `Custom Wordle League #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
+  const header = `Lekke Local Letters #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
   const grid = guessResults.map(row =>
     row.map(color => colorMap[color] || '⬛').join(' ')
   ).join('\n');
