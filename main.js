@@ -1,7 +1,8 @@
 const startDate = new Date('2025-06-01');
 const today = new Date();
 const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-const targetWord = wordList[dayNumber % wordList.length].toUpperCase();
+// const targetWord = wordList[dayNumber % wordList.length].toUpperCase();
+const targetWord = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
 const maxGuesses = 6;
 const guesses = [];
 const guessResults = []; // Track color results for each guess
@@ -170,7 +171,7 @@ function generateShareCode() {
     'green': '🟩'
   };
 
-  const header = `Custom Wordle League #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
+  const header = `Lekke Letters #${dayNumber + 1} ${guessResults.length}/${maxGuesses}\n\n`;
   const grid = guessResults.map(row =>
     row.map(color => colorMap[color] || '⬛').join(' ')
   ).join('\n');
