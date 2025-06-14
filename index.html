@@ -95,6 +95,23 @@
   #guessHistory .guess-row:last-child {
     margin-bottom: 0; /* no extra space after last */
   }
+  /* Share code styling */
+  #shareCode {
+    white-space: pre-line;
+    margin-top: 12px;
+    font-family: monospace;
+    font-size: 1.5em;
+    line-height: 1.2;
+    text-align: center;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+  }
+  #copyButton {
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+  }
 
 </style>
 </head>
@@ -119,13 +136,13 @@
 
     <div id="result"></div>
 
-    <div id="shareCode" style="white-space: pre; margin-top: 12px; font-family: monospace;"></div>
+    <div id="shareCode"></div>
 
   </div>
 
   <input id="hiddenInput" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" />
 
-  <div id="versionBadge">v1.1.3</div>
+  <div id="versionBadge">v1.1.4</div>
 
   <script src="wordlist.js"></script>
   <script src="main.js"></script>
